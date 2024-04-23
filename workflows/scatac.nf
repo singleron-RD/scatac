@@ -93,10 +93,10 @@ process EXTRACT {
     val protocol
 
     output:
-    tuple val(meta), path("${meta.id}_R*.fq*"),  emit: reads
+    tuple val(meta), path("${meta.id}_R*.fq*"),  emit: out_reads
     path  "versions.yml" , emit: versions
 
-
+    script:
     // separate forward from reverse pairs
     def (r1,r2,r3) = reads.collate(3).transpose()
     """
