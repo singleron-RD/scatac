@@ -68,7 +68,7 @@
         "genome_name": {
           "type": "string",
           "description": "The generated STAR genome index will be saved under this folder. It can then be used for future pipeline runs, reducing processing times.",
-          "default": "star_genome"
+          "default": "bwa_genome"
         },
         "keep_attributes": {
           "type": "string",
