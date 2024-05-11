@@ -4,8 +4,8 @@ process BWA_INDEX {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bwa:0.7.17--hed695b0_7' :
-        'biocontainers/bwa:0.7.17--hed695b0_7' }"
+        'https://depot.galaxyproject.org/singularity/bwa:0.7.17--he4a0461_11' :
+        'biocontainers/bwa:0.7.17--he4a0461_11' }"
 
     input:
     path(fasta)

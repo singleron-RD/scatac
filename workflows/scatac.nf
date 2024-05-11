@@ -119,6 +119,43 @@ process EXTRACT {
     """
 }
 
+process MAKE_FRAGMENT {
+    tag "$meta.id"
+    label 'process_single'
+
+    conda 'bioconda::snapatac2=2.5.3'
+    container "biocontainers/snapatac2:2.5.3--py310h4b81fae_0"
+
+    input:
+    tuple val(meta), path(bam)
+    path assets_dir
+    val protocol
+
+    output:
+    tuple val(meta), path("${meta.id}_R*.fq*"),  emit: out_reads
+    path  "versions.yml" , emit: versions
+
+    script:
+    // separate forward from reverse pairs
+    def (r1,r2,r3) = reads.collate(3).transpose()
+    """
+    extract.py \\
+        --sample ${meta.id} \\
+        --fq1 ${r1.join( "," )} \\
+        --fq2 ${r2.join( "," )} \\
+        --fq3 ${r3.join( "," )} \\
+        --assets_dir ${assets_dir} \\
+        --protocol ${protocol} 
+   
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        pyfastx: \$(pyfastx --version | sed -e "s/pyfastx version //g")
+    END_VERSIONS
+    """
+
+}
+
 workflow scatac {
 
     take:
@@ -163,6 +200,8 @@ workflow scatac {
     )
     ch_multiqc_files = ch_multiqc_files.mix(QUALIMAP_BAMQC.out.results.collect{it[1]})
     ch_versions = ch_versions.mix(QUALIMAP_BAMQC.out.versions.first())
+
+
 
     //
     // Collate and save software versions
