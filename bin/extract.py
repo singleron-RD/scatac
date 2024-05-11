@@ -212,8 +212,8 @@ if __name__ == "__main__":
     raw_list,  mismatch_list = get_raw_mismatch(protocol["bc"], 1)
 
     # out_fq
-    out_fq_fn = {x: f"{args.sample}_R{x}.fq" for x in [1,3]}
-    outdict = {k:open(v,'w') for k,v in out_fq_fn.items()}
+    out_fq_fn = {x: f"{args.sample}_R{x}.fq.gz" for x in [1,3]}
+    outdict = {k:openfile(v,'wt') for k,v in out_fq_fn.items()}
 
     fq1_list = args.fq1.split(',')
     fq2_list = args.fq2.split(',')

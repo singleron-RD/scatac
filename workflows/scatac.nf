@@ -170,14 +170,19 @@ workflow scatac {
     )
     ch_versions = ch_versions.mix(EXTRACT.out.versions.first())
 
-    BWA_INDEX (
-        params.fasta,
-        params.genome_name,
-    )
+    if (params.bwa_index) {
+        bwa_index = params.bwa_index
+    } else {
+        BWA_INDEX (
+            params.fasta,
+            params.genome_name,
+        )
+        bwa_index = BWA_INDEX.out.index
+    }
 
     BWA_MEM (
         EXTRACT.out.out_reads,
-        BWA_INDEX.out.index,
+        bwa_index,
         params.fasta,
         true,
     )

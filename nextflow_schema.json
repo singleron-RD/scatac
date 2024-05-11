@@ -59,25 +59,6 @@
           "type": "string",
           "format": "file-path",
           "description": "Path to genome gtf."
-        },
-        "star_genome": {
-          "type": "string",
-          "format": "directory-path",
-          "description": "Path to STAR genome directory. Required if fasta and gtf are not provided."
-        },
-        "genome_name": {
-          "type": "string",
-          "description": "The generated STAR genome index will be saved under this folder. It can then be used for future pipeline runs, reducing processing times.",
-          "default": "bwa_genome"
-        },
-        "keep_attributes": {
-          "type": "string",
-          "default": "gene_biotype=protein_coding,lncRNA,antisense,IG_LV_gene,IG_V_gene,IG_V_pseudogene,IG_D_gene,IG_J_gene,IG_J_pseudogene,IG_C_gene,IG_C_pseudogene,TR_V_gene,TR_V_pseudogene,TR_D_gene,TR_J_gene,TR_J_pseudogene,TR_C_gene;",
-          "description": "Attributes in gtf to keep."
-        },
-        "star_genome_additional_args": {
-          "type": "string",
-          "description": "Additional args to use when generate STAR genome directory."
         }
       }
     },
@@ -102,43 +83,6 @@
         "whitelist": {
           "type": "string",
           "description": "Barcode whitelist files. Multiple whitelists are seperated by whitespace."
-        }
-      }
-    },
-    "starsolo_options": {
-      "title": "STARSolo options",
-      "type": "object",
-      "description": "",
-      "default": "",
-      "properties": {
-        "soloFeatures": {
-          "type": "string",
-          "default": "GeneFull_Ex50pAS",
-          "description": "Quantification of different transcriptomic features.",
-          "help_text": "https://github.com/alexdobin/STAR/issues/1460  \n--soloFeatures SJ quantifies splice junctions by calculating per-cell counts ofreads that are spliced across junctions. It will count spliced reads across annotatedand unannotated junctions, thus allowing analysis of inter-cell alternative splicing and detection of novel splice isoforms.  \n--soloFeatures Velocyto performs separate counting for spliced, unsplicedand ambiguous reads, similar to the Velocyto tool . Its output can be usedin the RNA-velocity analyses to dissect the transcriptional dynamics of the cells.  "
-        },
-        "outFilterMatchNmin": {
-          "type": "integer",
-          "default": 50,
-          "description": "Alignment will be output only if the number of matched bases is higher than or equal to this value.",
-          "help_text": "Use default 50 to filter potential short prime sequences."
-        },
-        "soloCellFilter": {
-          "type": "string",
-          "default": "EmptyDrops_CR 3000 0.99 10 45000 90000 1000 0.01 20000 0.001 10000",
-          "description": "Cell-calling method.",
-          "help_text": "https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#cell-filtering-calling"
-        },
-        "outSAMattributes": {
-          "type": "string",
-          "default": "NH HI nM AS CR UR CB UB GX GN",
-          "description": "Output tags in SAM/BAM.",
-          "help_text": "https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#bam-tags"
-        },
-        "starsolo_extra_args": {
-          "type": "string",
-          "default": "--clip3pAdapterSeq AAAAAAAAAAAA --outSAMtype BAM SortedByCoordinate",
-          "description": "Extra STARSolo arguments to use."
         }
       }
     },
@@ -246,7 +190,7 @@
         },
         "publish_dir_mode": {
           "type": "string",
-          "default": "copy",
+          "default": "symlink",
           "description": "Method used to save pipeline results to output directory.",
           "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
           "fa_icon": "fas fa-copy",
@@ -349,9 +293,6 @@
       "$ref": "#/definitions/protocol_options"
     },
     {
-      "$ref": "#/definitions/starsolo_options"
-    },
-    {
       "$ref": "#/definitions/max_job_request_options"
     },
     {
@@ -360,5 +301,14 @@
     {
       "$ref": "#/definitions/generic_options"
     }
-  ]
+  ],
+  "properties": {
+    "bwa_index": {
+      "type": "string"
+    },
+    "genome_name": {
+      "type": "string",
+      "default": "index"
+    }
+  }
 }

@@ -21,10 +21,6 @@ Genome files and parameters.
 |-----------|-----------|-----------|-----------|-----------|-----------|
 | `fasta` | Path to genome fasta. | `string` |  |  |  |
 | `gtf` | Path to genome gtf. | `string` |  |  |  |
-| `star_genome` | Path to STAR genome directory. Required if fasta and gtf are not provided. | `string` |  |  |  |
-| `genome_name` | The generated STAR genome index will be saved under this folder. It can then be used for future pipeline runs, reducing processing times. | `string` | bwa_genome |  |  |
-| `keep_attributes` | Attributes in gtf to keep. | `string` | gene_biotype=protein_coding,lncRNA,antisense,IG_LV_gene,IG_V_gene,IG_V_pseudogene,IG_D_gene,IG_J_gene,IG_J_pseudogene,IG_C_gene,IG_C_pseudogene,TR_V_gene,TR_V_pseudogene,TR_D_gene,TR_J_gene,TR_J_pseudogene,TR_C_gene; |  |  |
-| `star_genome_additional_args` | Additional args to use when generate STAR genome directory. | `string` |  |  |  |
 
 ## Protocol options
 
@@ -35,18 +31,6 @@ Genome files and parameters.
 | `protocol` | Predefined pattern and whitelist. <details><summary>Help</summary><small>If set to "new", --pattern and --whitelist are required. The default is to auto-detect the protocol when running GEXSCOPE. </small></details>| `string` | SCATAC-V1 |  |  |
 | `pattern` | A string to locate cell barcode and UMI in R1 read. For example "C9L16C9L16C9L1U12". <details><summary>Help</summary><small>C: cell barcode<br>L: Linker sequence between segments<br>U: UMI<br>T: poly T</small></details>| `string` |  |  |  |
 | `whitelist` | Barcode whitelist files. Multiple whitelists are seperated by whitespace. | `string` |  |  |  |
-
-## STARSolo options
-
-
-
-| Parameter | Description | Type | Default | Required | Hidden |
-|-----------|-----------|-----------|-----------|-----------|-----------|
-| `soloFeatures` | Quantification of different transcriptomic features. <details><summary>Help</summary><small>https://github.com/alexdobin/STAR/issues/1460  <br>--soloFeatures SJ quantifies splice junctions by calculating per-cell counts ofreads that are spliced across junctions. It will count spliced reads across annotatedand unannotated junctions, thus allowing analysis of inter-cell alternative splicing and detection of novel splice isoforms.  <br>--soloFeatures Velocyto performs separate counting for spliced, unsplicedand ambiguous reads, similar to the Velocyto tool . Its output can be usedin the RNA-velocity analyses to dissect the transcriptional dynamics of the cells.  </small></details>| `string` | GeneFull_Ex50pAS |  |  |
-| `outFilterMatchNmin` | Alignment will be output only if the number of matched bases is higher than or equal to this value. <details><summary>Help</summary><small>Use default 50 to filter potential short prime sequences.</small></details>| `integer` | 50 |  |  |
-| `soloCellFilter` | Cell-calling method. <details><summary>Help</summary><small>https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#cell-filtering-calling</small></details>| `string` | EmptyDrops_CR 3000 0.99 10 45000 90000 1000 0.01 20000 0.001 10000 |  |  |
-| `outSAMattributes` | Output tags in SAM/BAM. <details><summary>Help</summary><small>https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#bam-tags</small></details>| `string` | NH HI nM AS CR UR CB UB GX GN |  |  |
-| `starsolo_extra_args` | Extra STARSolo arguments to use. | `string` | --clip3pAdapterSeq AAAAAAAAAAAA --outSAMtype BAM SortedByCoordinate |  |  |
 
 ## Max job request options
 
@@ -79,7 +63,7 @@ Less common options for the pipeline, typically set in a config file.
 |-----------|-----------|-----------|-----------|-----------|-----------|
 | `help` | Display help text. | `boolean` |  |  | True |
 | `version` | Display version and exit. | `boolean` |  |  | True |
-| `publish_dir_mode` | Method used to save pipeline results to output directory. <details><summary>Help</summary><small>The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.</small></details>| `string` | copy |  | True |
+| `publish_dir_mode` | Method used to save pipeline results to output directory. <details><summary>Help</summary><small>The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.</small></details>| `string` | symlink |  | True |
 | `email_on_fail` | Email address for completion summary, only when pipeline fails. <details><summary>Help</summary><small>An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.</small></details>| `string` |  |  | True |
 | `plaintext_email` | Send plain-text email instead of HTML. | `boolean` |  |  | True |
 | `max_multiqc_email_size` | File size limit when attaching MultiQC reports to summary emails. | `string` | 25.MB |  | True |
@@ -92,3 +76,10 @@ Less common options for the pipeline, typically set in a config file.
 | `validationShowHiddenParams` | Show all params when using `--help` <details><summary>Help</summary><small>By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters.</small></details>| `boolean` |  |  | True |
 | `validationFailUnrecognisedParams` | Validation of parameters fails when an unrecognised parameter is found. <details><summary>Help</summary><small>By default, when an unrecognised parameter is found, it returns a warinig.</small></details>| `boolean` |  |  | True |
 | `validationLenientMode` | Validation of parameters in lenient more. <details><summary>Help</summary><small>Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode).</small></details>| `boolean` |  |  | True |
+
+## Other parameters
+
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `bwa_index` |  | `string` |  |  |  |
+| `genome_name` |  | `string` | index |  |  |
