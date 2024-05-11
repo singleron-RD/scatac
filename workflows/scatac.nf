@@ -128,32 +128,20 @@ process MAKE_FRAGMENT {
 
     input:
     tuple val(meta), path(bam)
-    path assets_dir
-    val protocol
 
     output:
-    tuple val(meta), path("${meta.id}_R*.fq*"),  emit: out_reads
+    tuple val(meta), path("${meta.id}.fragment.gz"),  emit: fragment
     path  "versions.yml" , emit: versions
 
     script:
-    // separate forward from reverse pairs
-    def (r1,r2,r3) = reads.collate(3).transpose()
     """
-    extract.py \\
-        --sample ${meta.id} \\
-        --fq1 ${r1.join( "," )} \\
-        --fq2 ${r2.join( "," )} \\
-        --fq3 ${r3.join( "," )} \\
-        --assets_dir ${assets_dir} \\
-        --protocol ${protocol} 
-   
+    make_fragment.py $bam ${meta.id}   
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         pyfastx: \$(pyfastx --version | sed -e "s/pyfastx version //g")
     END_VERSIONS
     """
-
 }
 
 workflow scatac {
@@ -200,6 +188,11 @@ workflow scatac {
     )
     ch_multiqc_files = ch_multiqc_files.mix(QUALIMAP_BAMQC.out.results.collect{it[1]})
     ch_versions = ch_versions.mix(QUALIMAP_BAMQC.out.versions.first())
+
+    MAKE_FRAGMENT(
+        BWA_MEM.out.bam
+    )
+    ch_versions = ch_versions.mix(MAKE_FRAGMENT.out.versions.first())
 
 
 
