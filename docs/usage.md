@@ -14,21 +14,22 @@ You will need to create a samplesheet with information about the samples you wou
 | Column    | Description                                                                                                                                                                            |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                |
-| `fastq_2` | Full path to FastQ file reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                                                |
+| `fastq_1` | Full path to FastQ file reads 1.                                                                              |
+| `fastq_2` | Full path to FastQ file reads 2.  
+| `fastq_3` | Full path to FastQ file reads 3.                                                                                 |
 
 > [!NOTE]
-> fastq_1 and fastq_2 must be full path. Relative path are not allowed.
+> fastq File has to be gzipped and have the extension ".fastq.gz" or ".fq. Must use absolute path and relative path are not allowed.
 
 ### Multiple runs of the same sample
 
 The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
 
 ```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+sample,fastq_1,fastq_2,fastq_3
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,AEG588A1_S1_L002_R3_001.fastq.gz
+CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,AEG588A1_S1_L003_R3_001.fastq.gz
+CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,AEG588A1_S1_L004_R3_001.fastq.gz
 ```
 
 ### Create `samplesheet.csv` using helper script
@@ -47,27 +48,12 @@ Sample_X,test
 Sample_Y,Sample_Y
 ```
 
-/workspaces/scatac_test_data/GEXSCOPE-V2
-
-```
-Sample_Y_S1_L001_R1_001.fastq.gz  Sample_Y_S1_L002_R1_001.fastq.gz  test_R1.fastq.gz
-Sample_Y_S1_L001_R2_001.fastq.gz  Sample_Y_S1_L002_R2_001.fastq.gz  test_R2.fastq.gz
-```
-
 Run
 
 ```
-python scripts/samplesheet.py -m manifest.csv -f /workspaces/scatac_test_data/GEXSCOPE-V2
+python scripts/samplesheet.py -m manifest.csv -f /workspaces/scatac_test_data/SCATAC-V1
 ```
 
-samplesheet.csv
-
-```
-sample,fastq_1,fastq_2
-Sample_X,/workspaces/scatac_test_data/GEXSCOPE-V2/test_R1.fastq.gz,/workspaces/scatac_test_data/GEXSCOPE-V2/test_R2.fastq.gz
-Sample_Y,/workspaces/scatac_test_data/GEXSCOPE-V2/Sample_Y_S1_L001_R1_001.fastq.gz,/workspaces/scatac_test_data/GEXSCOPE-V2/Sample_Y_S1_L001_R2_001.fastq.gz
-Sample_Y,/workspaces/scatac_test_data/GEXSCOPE-V2/Sample_Y_S1_L002_R1_001.fastq.gz,/workspaces/scatac_test_data/GEXSCOPE-V2/Sample_Y_S1_L002_R2_001.fastq.gz
-```
 
 ## Running the pipeline
 
@@ -77,7 +63,8 @@ The typical command for running the pipeline is as follows:
 nextflow run singleron-RD/scatac \
  --input ./samplesheet.csv \
  --outdir ./results \
- --star_genome path_to_star_genome_index \
+ --fasta path_to_fasta \
+ --gtf path_to_gtf \
  -profile docker
 ```
 
@@ -110,7 +97,8 @@ with `params.yaml` containing:
 ```yaml
 input: './samplesheet.csv'
 outdir: './results/'
-star_genome: 'path_to_star_genome_index'
+fasta: 'path_to_fasta'
+gtf: 'path_to_gtf'
 <...>
 ```
 
@@ -125,7 +113,7 @@ nf-core launch singleron-RD/scatac
 
 Since indexing is an expensive process in time and resources you should ensure that it is only done once, by retaining the indices generated from each batch of reference files.
 
-When running the data of a certain species for the first time, you can provide `fasta`, `gtf` and `genome_name` instead of `star_genome`. For example,
+When running the data of a certain species for the first time, you should provide `fasta`, `gtf` and `genome_name`. For example,
 
 ```yaml
 fasta: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta"
@@ -133,11 +121,13 @@ gtf: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GR
 genome_name: "human.GRCh38.99.MT"
 ```
 
-The STAR index files will be saved in `{outdir}/star_genome/{genome_name}/`.
-When running data from the same genome later, you can provide `star_genome` to skip the indexing:
+The index files will be saved in `{outdir}/bwa_index/{genome_name}/`.
+When running data from the same genome later, you can provide `bwa_index` to skip the indexing:
 
 ```yaml
-star_genome: "/workspaces/test/outs/star_genome/human.GRCh38.99.MT/"
+fasta: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta"
+gtf: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.gtf"
+bwa_index: "/workspaces/test/outs/bwa_index/human.GRCh38.99.MT/"
 ```
 
 ### Running the pipeline with test data

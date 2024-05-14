@@ -5,7 +5,6 @@
 ## Documents
 
 - [Usage](./docs/usage.md)
-- [Modules](./docs/modules.md)
 - [Parameters](./docs/parameters.md)
 
 ## Contributions and Support
