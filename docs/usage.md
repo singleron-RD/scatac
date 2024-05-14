@@ -15,7 +15,7 @@ You will need to create a samplesheet with information about the samples you wou
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq_1` | Full path to FastQ file reads 1.                                                                              |
-| `fastq_2` | Full path to FastQ file reads 2.  
+| `fastq_2` | Full path to FastQ file reads 2. This fastq file contains the cell barcode.
 | `fastq_3` | Full path to FastQ file reads 3.                                                                                 |
 
 > [!NOTE]
