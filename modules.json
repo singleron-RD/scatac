@@ -1,41 +1,65 @@
 {
-  "name": "singleron-RD/scatac",
-  "homePage": "https://github.com/singleron-RD/scatac",
-  "repos": {
-    "https://github.com/nf-core/modules.git": {
-      "modules": {
-        "nf-core": {
-          "fastqc": {
-            "branch": "master",
-            "git_sha": "f4ae1d942bd50c5c0b9bd2de1393ce38315ba57c",
-            "installed_by": ["modules"]
-          },
-          "qualimap/bamqc": {
-            "branch": "master",
-            "git_sha": "6b0e4fe14ca1b12e131f64608f0bbaf36fd11451",
-            "installed_by": ["modules"]
-          }
+    "name": "singleron-RD/scatac",
+    "homePage": "https://github.com/singleron-RD/scatac",
+    "repos": {
+        "https://github.com/nf-core/modules.git": {
+            "modules": {
+                "nf-core": {
+                    "bwa/index": {
+                        "branch": "master",
+                        "git_sha": "086fa66260595e123b0ea47a6512539b72a9afa3",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "bwa/mem": {
+                        "branch": "master",
+                        "git_sha": "0c34b8159f62cde451c4ff249629c9d0a4f3f9c3",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "fastqc": {
+                        "branch": "master",
+                        "git_sha": "f4ae1d942bd50c5c0b9bd2de1393ce38315ba57c",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "qualimap/bamqc": {
+                        "branch": "master",
+                        "git_sha": "6b0e4fe14ca1b12e131f64608f0bbaf36fd11451",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    }
+                }
+            },
+            "subworkflows": {
+                "nf-core": {
+                    "utils_nextflow_pipeline": {
+                        "branch": "master",
+                        "git_sha": "5caf7640a9ef1d18d765d55339be751bb0969dfa",
+                        "installed_by": [
+                            "subworkflows"
+                        ]
+                    },
+                    "utils_nfcore_pipeline": {
+                        "branch": "master",
+                        "git_sha": "5caf7640a9ef1d18d765d55339be751bb0969dfa",
+                        "installed_by": [
+                            "subworkflows"
+                        ]
+                    },
+                    "utils_nfvalidation_plugin": {
+                        "branch": "master",
+                        "git_sha": "5caf7640a9ef1d18d765d55339be751bb0969dfa",
+                        "installed_by": [
+                            "subworkflows"
+                        ]
+                    }
+                }
+            }
         }
-      },
-      "subworkflows": {
-        "nf-core": {
-          "utils_nextflow_pipeline": {
-            "branch": "master",
-            "git_sha": "5caf7640a9ef1d18d765d55339be751bb0969dfa",
-            "installed_by": ["subworkflows"]
-          },
-          "utils_nfcore_pipeline": {
-            "branch": "master",
-            "git_sha": "5caf7640a9ef1d18d765d55339be751bb0969dfa",
-            "installed_by": ["subworkflows"]
-          },
-          "utils_nfvalidation_plugin": {
-            "branch": "master",
-            "git_sha": "5caf7640a9ef1d18d765d55339be751bb0969dfa",
-            "installed_by": ["subworkflows"]
-          }
-        }
-      }
     }
-  }
 }

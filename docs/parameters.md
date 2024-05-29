@@ -22,7 +22,6 @@ Genome files and parameters.
 | `fasta` | Path to genome fasta. | `string` |  |  |  |
 | `gtf` | Path to genome gtf. | `string` |  |  |  |
 | `bwa_index` | Path to bwa_index folder. | `string` |  |  |  |
-| `genome_name` | Use as bwa_index folder name. | `string` | index |  |  |
 
 ## Protocol options
 
@@ -30,7 +29,7 @@ Genome files and parameters.
 
 | Parameter | Description | Type | Default | Required | Hidden |
 |-----------|-----------|-----------|-----------|-----------|-----------|
-| `protocol` | Predefined pattern and whitelist. <details><summary>Help</summary><small>If set to "new", --pattern and --whitelist are required. The default is to auto-detect the protocol when running GEXSCOPE. </small></details>| `string` | SCATAC-V1 |  |  |
+| `protocol` | Predefined pattern and whitelist. <details><summary>Help</summary><small>If set to "new", --pattern and --whitelist are required. The default is to auto-detect the protocol when running GEXSCOPE. </small></details>| `string` | auto |  |  |
 | `pattern` | A string to locate cell barcode and UMI in R1 read. For example "C9L16C9L16C9L1U12". <details><summary>Help</summary><small>C: cell barcode<br>L: Linker sequence between segments<br>U: UMI<br>T: poly T</small></details>| `string` |  |  |  |
 | `whitelist` | Barcode whitelist files. Multiple whitelists are seperated by whitespace. | `string` |  |  |  |
 
@@ -78,3 +77,9 @@ Less common options for the pipeline, typically set in a config file.
 | `validationShowHiddenParams` | Show all params when using `--help` <details><summary>Help</summary><small>By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters.</small></details>| `boolean` |  |  | True |
 | `validationFailUnrecognisedParams` | Validation of parameters fails when an unrecognised parameter is found. <details><summary>Help</summary><small>By default, when an unrecognised parameter is found, it returns a warinig.</small></details>| `boolean` |  |  | True |
 | `validationLenientMode` | Validation of parameters in lenient more. <details><summary>Help</summary><small>Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode).</small></details>| `boolean` |  |  | True |
+
+## Other parameters
+
+| Parameter | Description | Type | Default | Required | Hidden |
+|-----------|-----------|-----------|-----------|-----------|-----------|
+| `run_fastqc` |  | `boolean` |  |  |  |

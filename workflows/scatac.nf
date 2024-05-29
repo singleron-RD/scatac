@@ -3,11 +3,15 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { EXTRACT                } from '../modules/local/extract'
+include { MAKE_FRAGMENT          } from '../modules/local/make_fragment'
+include { MULTIQC                } from '../modules/local/multiqc_sgr'
 
-include { MULTIQC                } from '../modules/local/multiqc_sgr/main'
-include { BWA_INDEX              } from '../modules/local/bwa/index/main'
-include { BWA_MEM                } from '../modules/local/bwa/mem/main'
+include { FASTQC                 } from '../modules/nf-core/fastqc/main'
+include { BWA_INDEX              } from '../modules/nf-core/bwa/index/main'
+include { BWA_MEM                } from '../modules/nf-core/bwa/mem/main'
 include { QUALIMAP_BAMQC         } from '../modules/nf-core/qualimap/bamqc/main'
+
 include { paramsSummaryMap       } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -18,131 +22,6 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_scat
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-process FASTQC {
-    tag "$meta.id"
-    label 'process_medium'
-
-    conda "bioconda::fastqc=0.12.1"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0' :
-        'biocontainers/fastqc:0.12.1--hdfd78af_0' }"
-
-    input:
-    tuple val(meta), path(reads)
-
-    output:
-    tuple val(meta), path("*.html"), emit: html
-    tuple val(meta), path("*.zip") , emit: zip
-    path  "versions.yml"           , emit: versions
-
-    script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    // Make list of old name and new name pairs to use for renaming in the bash while loop
-    def old_new_pairs = reads instanceof Path || reads.size() == 1 ? [[ reads, "${prefix}.${reads}" ]] : reads.withIndex().collect { entry, index -> [ entry, "${prefix}.${entry}" ] }
-    def rename_to = old_new_pairs*.join(' ').join(' ')
-    def renamed_files = old_new_pairs.collect{ old_name, new_name -> new_name }.join(' ')
-    """
-    printf "%s %s\\n" $rename_to | while read old_name new_name; do
-        [ -f "\${new_name}" ] || ln -s \$old_name \$new_name
-    done
-
-    fastqc \\
-        $args \\
-        --threads $task.cpus \\
-        $renamed_files
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        fastqc: \$( fastqc --version | sed '/FastQC v/!d; s/.*v//' )
-    END_VERSIONS
-    """
-}
-
-process FILTER_GTF {
-    tag "$gtf"
-    label 'process_single'
-
-    conda 'conda-forge::python==3.12'
-    container "biocontainers/python:3.12"
-
-    input:
-    path gtf
-    val attributes
-
-    output:
-    path "*.filtered.gtf", emit: filtered_gtf
-    path "gtf_filter.log", emit: log_file
-
-    script:
-    def args = task.ext.args ?: ''
-
-    """
-    filter_gtf.py ${gtf} \"${attributes}\"
-    """
-}
-
-process EXTRACT {
-    tag "$meta.id"
-    label 'process_single'
-
-    conda 'bioconda::pyfastx=2.1.0'
-    container "biocontainers/pyfastx:2.1.0--py39h3d4b85c_0"
-
-    input:
-    tuple val(meta), path(reads)
-    path assets_dir
-    val protocol
-
-    output:
-    tuple val(meta), path("${meta.id}_R*.fq*"),  emit: out_reads
-    path  "versions.yml" , emit: versions
-
-    script:
-    // separate forward from reverse pairs
-    def (r1,r2,r3) = reads.collate(3).transpose()
-    """
-    extract.py \\
-        --sample ${meta.id} \\
-        --fq1 ${r1.join( "," )} \\
-        --fq2 ${r2.join( "," )} \\
-        --fq3 ${r3.join( "," )} \\
-        --assets_dir ${assets_dir} \\
-        --protocol ${protocol} 
-   
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        pyfastx: \$(pyfastx --version | sed -e "s/pyfastx version //g")
-    END_VERSIONS
-    """
-}
-
-process MAKE_FRAGMENT {
-    tag "$meta.id"
-    label 'process_single'
-
-    conda 'bioconda::snapatac2=2.5.3'
-    container "biocontainers/snapatac2:2.5.3--py310h4b81fae_0"
-
-    input:
-    tuple val(meta), path(bam)
-
-    output:
-    tuple val(meta), path("${meta.id}.fragment.gz"),  emit: fragment
-    path  "versions.yml" , emit: versions
-
-    script:
-    """
-    make_fragment.py $bam ${meta.id}   
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        pyfastx: \$(pyfastx --version | sed -e "s/pyfastx version //g")
-    END_VERSIONS
-    """
-}
 
 workflow scatac {
 
@@ -157,11 +36,13 @@ workflow scatac {
     //
     // MODULE: Run FastQC
     //
-    FASTQC (
-        ch_samplesheet
-    )
+    if (params.run_fastqc) {
+        FASTQC (
+            ch_samplesheet
+        )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    }
 
     EXTRACT (
         ch_samplesheet,
@@ -169,13 +50,13 @@ workflow scatac {
         params.protocol,
     )
     ch_versions = ch_versions.mix(EXTRACT.out.versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(EXTRACT.out.json.collect{it[1]})
 
     if (params.bwa_index) {
-        bwa_index = params.bwa_index
+        bwa_index = [ [], params.bwa_index ]
     } else {
         BWA_INDEX (
-            params.fasta,
-            params.genome_name,
+            [ [], params.fasta],
         )
         bwa_index = BWA_INDEX.out.index
     }
@@ -183,7 +64,7 @@ workflow scatac {
     BWA_MEM (
         EXTRACT.out.out_reads,
         bwa_index,
-        params.fasta,
+        [ [], params.fasta ],
         true,
     )
 
@@ -226,7 +107,8 @@ workflow scatac {
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
         ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
+        "${projectDir}/multiqc_sgr/singleron_logo.png",
+        "${projectDir}/multiqc_sgr/",
     )
 
     emit:
