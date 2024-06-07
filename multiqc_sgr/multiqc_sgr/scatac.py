@@ -20,11 +20,17 @@ class MultiqcModule(BaseMultiqcModule):
         log.info(f"Running module: {ASSAY}")
 
         stat_data = self.parse_json(ASSAY, "stats")
-        if all(len(x) == 0 for x in [stat_data]):
+        umi_count_data = self.parse_json(self.name, "umi_count")
+        if all(len(x) == 0 for x in [stat_data, umi_count_data]):
             raise ModuleNoSamplesFound
 
         # Basic Stats Table
         self.general_stats_table(stat_data)
+
+        # barcode rank plot
+        self.add_section(
+            name="Barcode Rank", anchor=f"{ASSAY}_barcode_rank", plot=self.barcode_rank_plot(umi_count_data)
+        )
 
         # Superfluous function call to confirm that it is used in this module
         # Replace None with actual version if it is available
@@ -126,8 +132,8 @@ class MultiqcModule(BaseMultiqcModule):
 
         # Config for the plot
         pconfig = {
-            "id": "scrna_barcode_rank_plot",
-            "title": "scrna: Barcode Rank",
+            "id": f"{ASSAY}_barcode_rank_plot",
+            "title": f"{ASSAY}: Barcode Rank",
             "ylab": "UMI counts",
             "xlab": "Barcode Rank",
             "yLog": True,

@@ -16,6 +16,7 @@ def multiqc_sgr_config():
         "scsnp/count": {"fn": "*scsnp.count.json"},
         "scsnp/meta": {"fn": "*scsnp.meta.json"},
         "scatac/stats": {"fn": "*scatac.*stats.json"},
+        "scatac/umi_count": {"fn": "*scatac.umi_count.json"},
     }
     config.update_dict(config.sp, sgr_search_patterns)
 
