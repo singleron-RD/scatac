@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # protocol
     protocol_dict = parse_protocol.get_protocol_dict(args.assets_dir)
     if args.protocol == "auto":
-        p = Auto(fq1_list, args.sample).run()
+        p = Auto(fq2_list, args.sample).run()
     else:
         p = args.protocol
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     pmeta = protocol_dict[p]
     pattern_dict = pmeta["pattern_dict"]
-    raw_list, mismatch_list = parse_protocol.get_raw_mismatch(pmeta["bc"], 1)
+    raw_list, mismatch_list = parse_protocol.get_raw_mismatch(pmeta["bc"], 0)
 
     # out_fq
     out_fq_fn = {x: f"{args.sample}_R{x}.fq.gz" for x in [1, 3]}

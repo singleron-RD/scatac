@@ -6,7 +6,7 @@ process EXTRACT {
     container "biocontainers/pyfastx:2.1.0--py39h3d4b85c_0"
 
     input:
-    tuple val(meta), path(reads)
+    tuple val(meta), path(reads, stageAs: "?/*")
     path assets_dir
     val protocol
 
