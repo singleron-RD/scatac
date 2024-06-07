@@ -5,8 +5,7 @@ import argparse
 import parse_protocol
 import pyfastx
 import utils
-
-ASSAY = "scatac"
+from __init__ import ASSAY
 
 
 class Auto(parse_protocol.Auto):

@@ -84,6 +84,24 @@ class MultiqcModule(BaseMultiqcModule):
                 "scale": "green",
                 "hidden": True,
             },
+            "Estimated Number of Cells": {
+                "title": "Number of Cells",
+                "description": "Estimated number of cells",
+                "scale": "blue",
+                "format": "{:,.0f}",
+            },
+            "Median Fragments per Cell": {
+                "title": "Median Fragments",
+                "description": "Median Fragments per Cell",
+                "scale": "blue",
+                "format": "{:,.0f}",
+            },
+            "Median TSS Enrichment Score per Cell": {
+                "title": "Median TSSE",
+                "description": "Median TSS Enrichment Score per Cell",
+                "scale": "blue",
+                "format": "{:,.0f}",
+            },
         }
         self.general_stats_addcols(summary_data, headers=headers)
 

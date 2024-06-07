@@ -44,6 +44,11 @@ def write_json(data, fn):
         json.dump(data, f, indent=4)
 
 
+def write_multiqc(data, sample, assay, step):
+    fn = f"{sample}.{assay}.{step}.json"
+    write_json(data, fn)
+
+
 def get_frac(raw_frac: float):
     return round(float(raw_frac) * 100, 2)
 

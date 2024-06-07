@@ -4,7 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { EXTRACT                } from '../modules/local/extract'
-include { MAKE_FRAGMENT          } from '../modules/local/make_fragment'
+include { MAKE_FRAGMENT          } from '../modules/local/snapatac2/make_fragment'
+include { SNAPATAC2              } from '../modules/local/snapatac2/snapatac2'
 include { MULTIQC                } from '../modules/local/multiqc_sgr'
 
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
@@ -32,16 +33,17 @@ workflow scatac {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+    ch_fasta = [ [], params.fasta ]
+    ch_gtf = [ [], params.gtf ]
 
-    //
-    // MODULE: Run FastQC
-    //
+
+    // fastqc
     if (params.run_fastqc) {
         FASTQC (
             ch_samplesheet
         )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
     EXTRACT (
@@ -56,7 +58,7 @@ workflow scatac {
         bwa_index = [ [], params.bwa_index ]
     } else {
         BWA_INDEX (
-            [ [], params.fasta],
+            ch_fasta,
         )
         bwa_index = BWA_INDEX.out.index
     }
@@ -64,7 +66,7 @@ workflow scatac {
     BWA_MEM (
         EXTRACT.out.out_reads,
         bwa_index,
-        [ [], params.fasta ],
+        ch_fasta,
         true,
     )
 
@@ -80,7 +82,14 @@ workflow scatac {
     )
     ch_versions = ch_versions.mix(MAKE_FRAGMENT.out.versions.first())
 
-
+    // snapatac2 
+    SNAPATAC2 (
+        MAKE_FRAGMENT.out.fragment,
+        ch_fasta,
+        ch_gtf,
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(SNAPATAC2.out.json.collect{it[1]})
+    ch_versions = ch_versions.mix(SNAPATAC2.out.versions.first())
 
     //
     // Collate and save software versions

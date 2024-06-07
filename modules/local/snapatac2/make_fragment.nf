@@ -2,7 +2,7 @@ process MAKE_FRAGMENT {
     tag "$meta.id"
     label 'process_single'
 
-    conda 'bioconda::snapatac2=2.5.3'
+    conda "${moduleDir}/environment.yml"
     container "biocontainers/snapatac2:2.5.3--py310h4b81fae_0"
 
     input:

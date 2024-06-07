@@ -50,7 +50,7 @@ Parameters used to describe centralised config profiles. These should not be edi
 | Parameter | Description | Type | Default | Required | Hidden |
 |-----------|-----------|-----------|-----------|-----------|-----------|
 | `custom_config_version` | Git commit id for Institutional configs. | `string` | master |  | True |
-| `custom_config_base` | Base directory for Institutional configs. <details><summary>Help</summary><small>If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.</small></details>| `string` | https://raw.githubusercontent.com/nf-core/configs/master |  | True |
+| `custom_config_base` | Base directory for Institutional configs. <details><summary>Help</summary><small>If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.</small></details>| `string` |  |  | True |
 | `config_profile_name` | Institutional config name. | `string` |  |  | True |
 | `config_profile_description` | Institutional config description. | `string` |  |  | True |
 | `config_profile_contact` | Institutional config contact information. | `string` |  |  | True |

@@ -18,3 +18,24 @@ def multiqc_sgr_config():
         "scatac/stats": {"fn": "*scatac.*stats.json"},
     }
     config.update_dict(config.sp, sgr_search_patterns)
+
+    config.update_dict(
+        config.table_columns_visible,
+        {
+            "QualiMap": {
+                "total_reads": False,
+                "mapped_reads": False,
+                "general_error_rate": False,
+                "mean_coverage": False,
+                "percentage_aligned": True,
+                "median_coverage": False,
+                "median_insert_size": False,
+                "avg_gc": False,
+                "1_x_pc": False,
+                "5_x_pc": False,
+                "10_x_pc": False,
+                "30_x_pc": False,
+                "50_x_pc": False,
+            },
+        },
+    )

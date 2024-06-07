@@ -1,0 +1,9 @@
+name: snapatac2
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::snapatac2==2.6.4
+  - pip:
+    - snapatac2==2.6.4
