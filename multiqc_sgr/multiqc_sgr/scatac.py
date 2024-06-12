@@ -116,6 +116,14 @@ class MultiqcModule(BaseMultiqcModule):
                 "suffix": "%",
                 "scale": "green",
             },
+            "Median Fraction of Duplicated Reads per Cell": {
+                "title": "Median % dup",
+                "description": "Median Fraction of Duplicated Reads per Cell",
+                "max": 100,
+                "min": 0,
+                "suffix": "%",
+                "scale": "green",
+            },
             "Number of Peaks": {
                 "title": "N Peaks",
                 "description": "Number of Peaks",

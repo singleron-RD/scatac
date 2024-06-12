@@ -23,14 +23,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Multiple runs of the same sample
 
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
-
-```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2,fastq_3
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,AEG588A1_S1_L002_R3_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,AEG588A1_S1_L003_R3_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,AEG588A1_S1_L004_R3_001.fastq.gz
-```
+The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. 
 
 ### Create `samplesheet.csv` using helper script
 
@@ -65,6 +58,7 @@ nextflow run singleron-RD/scatac \
  --outdir ./results \
  --fasta path_to_fasta \
  --gtf path_to_gtf \
+ --bwa_index path_to_bwa_index_folder \
  -profile docker
 ```
 
@@ -99,6 +93,7 @@ input: './samplesheet.csv'
 outdir: './results/'
 fasta: 'path_to_fasta'
 gtf: 'path_to_gtf'
+bwa_index: 'path_to_bwa_index_folder'
 <...>
 ```
 
@@ -113,21 +108,20 @@ nf-core launch singleron-RD/scatac
 
 Since indexing is an expensive process in time and resources you should ensure that it is only done once, by retaining the indices generated from each batch of reference files.
 
-When running the data of a certain species for the first time, you should provide `fasta`, `gtf` and `genome_name`. For example,
+When running the data of a certain species for the first time, you should provide `fasta` and `gtf` . For example,
 
 ```yaml
 fasta: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta"
 gtf: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.gtf"
-genome_name: "human.GRCh38.99.MT"
 ```
 
-The index files will be saved in `{outdir}/bwa_index/{genome_name}/`.
+The index files will be saved in `{outdir}/bwa_index/bwa`.
 When running data from the same genome later, you can provide `bwa_index` to skip the indexing:
 
 ```yaml
 fasta: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.fasta"
 gtf: "https://raw.githubusercontent.com/singleron-RD/test_genome/master/human.GRCh38.99.MT/human.GRCh38.99.MT.gtf"
-bwa_index: "/workspaces/test/outs/bwa_index/human.GRCh38.99.MT/"
+bwa_index: "/workspaces/test/outs/bwa_index/bwa"
 ```
 
 ### Running the pipeline with test data
@@ -139,6 +133,10 @@ Run the following command to test
 nextflow run singleron-RD/scatac -profile test,docker --outdir results
 ```
 
+> [!NOTE]
+> This command might fail if you have [trouble connecting to raw.githubusercontent.com](https://github.com/openvinotoolkit/openvino/issues/8492). 
+
+
 ### Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
@@ -146,6 +144,13 @@ When you run the above command, Nextflow automatically pulls the pipeline code f
 ```bash
 nextflow pull singleron-RD/scatac
 ```
+
+> [!NOTE]
+> This command might fail if you have trouble connecting to github. In this case, you can manually git clone the master branch and run with the path to the folder.
+> ```
+> git clone https://github.com/singleron-RD/scatac.git
+> nextflow run /workspace/pipeline/scatac ...
+> ```
 
 ### Reproducibility
 
@@ -205,6 +210,15 @@ Specify this when restarting a pipeline. Nextflow will use cached results from a
 
 You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
 
+### `-bg`
+
+Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
+
+The Nextflow `-bg` flag launches Nextflow in the background, detached from your terminal so that the workflow does not stop if you log out of your session. The logs are saved to a file.
+
+Alternatively, you can use `screen` / `tmux` or similar tool to create a detached session which you can log back into at a later time.
+Some HPC setups also allow you to run nextflow within a cluster job submitted your job scheduler (from where it submits more jobs).
+
 ### `-c`
 
 Specify the path to a specific config file (this is a core Nextflow command). See the [nf-core website documentation](https://nf-co.re/usage/configuration) for more information.
@@ -216,6 +230,16 @@ Specify the path to a specific config file (this is a core Nextflow command). Se
 Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](../conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original). If it still fails after the attempt then the pipeline execution is stopped.
 
 To change the resource requests, please see the [max resources](https://nf-co.re/docs/usage/configuration#max-resources) and [tuning workflow resources](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources) section of the nf-core website.
+
+## Nextflow memory requirements
+
+In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
+We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
+
+```bash
+NXF_OPTS='-Xms1g -Xmx4g'
+```
+
 
 ### Custom Containers
 
@@ -245,20 +269,3 @@ We recommend providing a compute `params.vm_type` of `Standard_D16_v3` VMs by de
 Note that the choice of VM size depends on your quota and the overall workload during the analysis.
 For a thorough list, please refer the [Azure Sizes for virtual machines in Azure](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes).
 
-## Running in the background
-
-Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
-
-The Nextflow `-bg` flag launches Nextflow in the background, detached from your terminal so that the workflow does not stop if you log out of your session. The logs are saved to a file.
-
-Alternatively, you can use `screen` / `tmux` or similar tool to create a detached session which you can log back into at a later time.
-Some HPC setups also allow you to run nextflow within a cluster job submitted your job scheduler (from where it submits more jobs).
-
-## Nextflow memory requirements
-
-In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
-We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
-
-```bash
-NXF_OPTS='-Xms1g -Xmx4g'
-```
