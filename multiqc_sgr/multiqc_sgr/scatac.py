@@ -91,7 +91,7 @@ class MultiqcModule(BaseMultiqcModule):
                 "hidden": True,
             },
             "Estimated Number of Cells": {
-                "title": "Number of Cells",
+                "title": "N Cells",
                 "description": "Estimated number of cells",
                 "scale": "blue",
                 "format": "{:,.0f}",
@@ -107,6 +107,21 @@ class MultiqcModule(BaseMultiqcModule):
                 "description": "Median TSS Enrichment Score per Cell",
                 "scale": "blue",
                 "format": "{:,.0f}",
+            },
+            "Median Fraction of Reads in Peaks per Cell": {
+                "title": "Median % Reads in Peaks",
+                "description": "Median Fraction of Reads in Peaks per Cell",
+                "max": 100,
+                "min": 0,
+                "suffix": "%",
+                "scale": "green",
+            },
+            "Number of Peaks": {
+                "title": "N Peaks",
+                "description": "Number of Peaks",
+                "scale": "blue",
+                "format": "{:,.0f}",
+                "hidden": True,
             },
         }
         self.general_stats_addcols(summary_data, headers=headers)

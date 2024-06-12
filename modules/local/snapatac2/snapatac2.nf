@@ -16,6 +16,7 @@ process SNAPATAC2 {
     tuple val(meta), path("${meta.id}.fragment.gz"),  emit: fragment
     tuple val(meta), path("*.json"),  emit: json
     tuple val(meta), path("*.png"),  emit: png
+    tuple val(meta), path("*.h5ad"),  emit: h5ad
     path  "versions.yml" , emit: versions
 
     script:

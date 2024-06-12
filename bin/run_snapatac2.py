@@ -27,6 +27,7 @@ def get_umi_count(bcs, umis, cell_barcodes, sample):
         if bc not in cell_barcodes:
             first_noncell = i
             break
+    print(f"first non-cell barcode rank: {first_noncell}")
     last_cell = 0
     for i in range(min(n - 1, MAX_CELL), -1, -1):
         bc = a[i][1]
@@ -34,7 +35,8 @@ def get_umi_count(bcs, umis, cell_barcodes, sample):
             last_cell = i
             break
     pure = sample + ".cells.pure" + f"({first_noncell}/{first_noncell}, 100%)"
-    bg = sample + ".cells.background"
+    bg_cells = n - first_noncell
+    bg = sample + ".cells.background" + f"(0/{bg_cells}, 0%)"
     plot_data[pure] = {}
     plot_data[bg] = {}
     for i in range(first_noncell):
@@ -65,11 +67,11 @@ def run(args):
     genome = snap.genome.Genome(fasta=args.fasta, annotation=args.gtf)
 
     # read fragment
-    h5ad = f"{sample}.h5ad"
+    filter_h5ad = f"{sample}.filtered.h5ad"
     data = snap.pp.import_data(
         args.fragment,
         chrom_sizes=genome,
-        file=h5ad,  # Optional
+        file=filter_h5ad,  # Optional
         sorted_by_barcode=False,
         min_num_fragments=0,
         chrM=["chrM", "M", "MT", "Mt"],
@@ -119,10 +121,19 @@ def run(args):
     umap_fn = f"{sample}.umap.png"
     snap.pl.umap(data, color="leiden", interactive=False, show=False, height=500, out_file=umap_fn)
 
+    # gene matrix
+    snap.pp.make_gene_matrix(data, genome, file=f"{sample}.gene_mat.h5ad")
+
     # cluster peaks
     snap.tl.macs3(data, groupby="leiden")
     peaks = snap.tl.merge_peaks(data.uns["macs3"], genome)
-    snap.pp.make_peak_matrix(data, use_rep=peaks["Peaks"], file=f"{sample}.peak.h5ad")
+    snap.pp.make_peak_matrix(data, use_rep=peaks["Peaks"], file=f"{sample}.peak_mat.h5ad")
+
+    # peak metrics
+    snap.metrics.frip(data, {"peaks_frac": peaks["Peaks"]})
+    median_frac = utils.get_frac(np.median(data.obs["peaks_frac"]))
+    stats["Median Fraction of Reads in Peaks per Cell"] = median_frac
+    stats["Number of Peaks"] = peaks.shape[0]
 
     # write multiqc
     utils.write_multiqc(stats, sample, ASSAY, "snapatac2" + ".stats")
