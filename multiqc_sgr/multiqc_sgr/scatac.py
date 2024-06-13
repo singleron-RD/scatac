@@ -157,7 +157,7 @@ class MultiqcModule(BaseMultiqcModule):
         pconfig = {
             "id": f"{ASSAY}_barcode_rank_plot",
             "title": f"{ASSAY}: Barcode Rank",
-            "ylab": "UMI counts",
+            "ylab": "Fragment Count",
             "xlab": "Barcode Rank",
             "yLog": True,
             "xLog": True,

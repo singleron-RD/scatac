@@ -102,7 +102,7 @@ def run(args):
     stats["Median Fragments per Cell"] = median_fragment
     median_tsse = np.median(data.obs["tsse"])
     stats["Median TSS Enrichment Score per Cell"] = median_tsse
-    frac_dup = np.median(data.obs["frac_dup"])
+    frac_dup = utils.get_frac(np.median(data.obs["frac_dup"]))
     stats["Median Fraction of Duplicated Reads per Cell"] = frac_dup
     print(stats)
 

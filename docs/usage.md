@@ -27,26 +27,26 @@ The `sample` identifiers have to be the same when you have re-sequenced the same
 
 ### Create `samplesheet.csv` using helper script
 
-When you have many samples, manually creating `samplesheet.csv` can be tedious and error-prone. There is a python script [samplesheet.py](../scripts/samplesheet.py) that can help you create a `samplesheet.csv` file.
+When you have many samples, manually creating `samplesheet.csv` can be tedious and error-prone. There is a python script [manifest.py](https://github.com/singleron-RD/sccore/blob/main/sccore/cli/manifest.py) that can help you create a `samplesheet.csv` file.
+
+```
+pip install sccore
+manifest -m manifest.csv -f /workspaces/scatac_test_data/NPM1
+```
 
 `-m --manifest` Path to the manifest CSV file containing prefix-sample mapping.
 
-`-f --folders` Comma-separated paths to folders to search for fastq files.
+`-f --folders` Comma-separated paths to folders to search for fastq files. If `--match` is used, all `barcode.tsv.gz` files with sample name in the full path will also be searched. 
 
 manifest.csv
 
 ```
 sample,prefix
-Sample_X,test
-Sample_Y,Sample_Y
+X,prefixX
+Y,prefixY
 ```
 
-Run
-
-```
-python scripts/samplesheet.py -m manifest.csv -f /workspaces/scatac_test_data/SCATAC-V1
-```
-
+Examples of test data can be found at <https://github.com/singleron-RD/scatac_test_data/tree/master>
 
 ## Running the pipeline
 
