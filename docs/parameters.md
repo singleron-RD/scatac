@@ -19,8 +19,8 @@ Genome files and parameters.
 
 | Parameter | Description | Type | Default | Required | Hidden |
 |-----------|-----------|-----------|-----------|-----------|-----------|
-| `fasta` | Path to genome fasta. | `string` |  |  |  |
-| `gtf` | Path to genome gtf. | `string` |  |  |  |
+| `fasta` | Path to genome fasta. | `string` |  | True |  |
+| `gtf` | Path to genome gtf. | `string` |  | True |  |
 | `bwa_index` | Path to bwa_index folder. | `string` |  |  |  |
 
 ## Protocol options

@@ -67,7 +67,11 @@
                     "type": "string",
                     "description": "Path to bwa_index folder."
                 }
-            }
+            },
+            "required": [
+                "fasta",
+                "gtf"
+            ]
         },
         "protocol_options": {
             "title": "Protocol options",
