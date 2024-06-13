@@ -83,16 +83,7 @@
                     "type": "string",
                     "default": "auto",
                     "description": "Predefined pattern and whitelist.",
-                    "help_text": "If set to \"new\", --pattern and --whitelist are required. The default is to auto-detect the protocol when running GEXSCOPE. "
-                },
-                "pattern": {
-                    "type": "string",
-                    "help_text": "C: cell barcode\nL: Linker sequence between segments\nU: UMI\nT: poly T",
-                    "description": "A string to locate cell barcode and UMI in R1 read. For example \"C9L16C9L16C9L1U12\"."
-                },
-                "whitelist": {
-                    "type": "string",
-                    "description": "Barcode whitelist files. Multiple whitelists are seperated by whitespace."
+                    "help_text": "The default is to auto-detect the protocol when running GEXSCOPE. "
                 }
             }
         },
